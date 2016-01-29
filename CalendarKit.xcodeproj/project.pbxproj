@@ -10,8 +10,6 @@
 		B36A68851C5B756B00D6E9B1 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B36A68831C5B756B00D6E9B1 /* InfoPlist.strings */; };
 		B36A68881C5B7B8100D6E9B1 /* CalendarKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3DD973A1C5A5B070025E132 /* CalendarKit.framework */; };
 		B36A68891C5B7B8100D6E9B1 /* CalendarKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B3DD973A1C5A5B070025E132 /* CalendarKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		B36A688F1C5B874700D6E9B1 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = B36A688D1C5B874700D6E9B1 /* README.md */; };
-		B36A68901C5B874700D6E9B1 /* screenshot.png in Resources */ = {isa = PBXBuildFile; fileRef = B36A688E1C5B874700D6E9B1 /* screenshot.png */; };
 		B3DD973E1C5A5B070025E132 /* CalendarKit.h in Headers */ = {isa = PBXBuildFile; fileRef = B3DD973D1C5A5B070025E132 /* CalendarKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B3DD974D1C5A5BAA0025E132 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B3DD974C1C5A5BAA0025E132 /* main.m */; };
 		B3DD97501C5A5BAA0025E132 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B3DD974F1C5A5BAA0025E132 /* AppDelegate.m */; };
@@ -53,6 +51,7 @@
 		B36A68871C5B795500D6E9B1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B36A688D1C5B874700D6E9B1 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B36A688E1C5B874700D6E9B1 /* screenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screenshot.png; sourceTree = "<group>"; };
+		B36A68911C5B924100D6E9B1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		B3DD973A1C5A5B070025E132 /* CalendarKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CalendarKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3DD973D1C5A5B070025E132 /* CalendarKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CalendarKit.h; sourceTree = "<group>"; };
 		B3DD973F1C5A5B070025E132 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -93,6 +92,7 @@
 		B3DD97301C5A5B060025E132 = {
 			isa = PBXGroup;
 			children = (
+				B36A68911C5B924100D6E9B1 /* LICENSE */,
 				B36A688D1C5B874700D6E9B1 /* README.md */,
 				B36A688E1C5B874700D6E9B1 /* screenshot.png */,
 				B3DD973C1C5A5B070025E132 /* CalendarKit */,
@@ -251,7 +251,6 @@
 				B3DD975B1C5A5BAA0025E132 /* LaunchScreen.storyboard in Resources */,
 				B36A68851C5B756B00D6E9B1 /* InfoPlist.strings in Resources */,
 				B3DD97581C5A5BAA0025E132 /* Assets.xcassets in Resources */,
-				B36A68901C5B874700D6E9B1 /* screenshot.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,7 +271,6 @@
 			files = (
 				B3DD97501C5A5BAA0025E132 /* AppDelegate.m in Sources */,
 				B3DD976C1C5A78900025E132 /* BaseViewController.m in Sources */,
-				B36A688F1C5B874700D6E9B1 /* README.md in Sources */,
 				B3DD976F1C5A78970025E132 /* RootViewController.m in Sources */,
 				B3DD974D1C5A5BAA0025E132 /* main.m in Sources */,
 			);
