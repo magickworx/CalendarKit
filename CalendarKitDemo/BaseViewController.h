@@ -1,12 +1,12 @@
 /*****************************************************************************
  *
- * FILE:	CalendarKit.h
- * DESCRIPTION:	SimpleCalendarKit: Public Header
+ * FILE:	BaseViewController.h
+ * DESCRIPTION:	CalendarKitDemo: Base View Controller
  * DATE:	Thu, Jan 28 2016
  * UPDATED:	Thu, Jan 28 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
- * URL:		http://www.MagickWorX.COM/
+ * URL:		http://www.iPhone.MagickWorX.COM/
  * COPYRIGHT:	(c) 2016 阿部康一／Kouichi ABE (WALL), All rights reserved.
  * LICENSE:
  *
@@ -36,18 +36,12 @@
  *   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  *   THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: CKCalendarView.h,v 1.2 2013/01/22 15:23:51 kouichi Exp $
+ * $Id: BaseViewController.h,v 1.1 2016/01/28 12:40:36 kouichi Exp $
  *
  *****************************************************************************/
 
-#import <UIKit/UIKit.h>
+#import "AppDelegate.h"
 
-//! Project version number for CalendarKit.
-FOUNDATION_EXPORT double CalendarKitVersionNumber;
-
-//! Project version string for CalendarKit.
-FOUNDATION_EXPORT const unsigned char CalendarKitVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <CalendarKit/PublicHeader.h>
-
-#import <CalendarKit/SCKCalendarView.h>
+@interface BaseViewController : UIViewController
+@property (nonatomic,readonly) AppDelegate *	app;
+@end

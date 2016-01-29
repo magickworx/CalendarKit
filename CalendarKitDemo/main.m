@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
- * FILE:	CalendarKit.h
- * DESCRIPTION:	SimpleCalendarKit: Public Header
+ * FILE:	main.m
+ * DESCRIPTION:	CalendarKitDemo: The iOS Application Primitive Main
  * DATE:	Thu, Jan 28 2016
  * UPDATED:	Thu, Jan 28 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
@@ -36,18 +36,18 @@
  *   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  *   THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: CKCalendarView.h,v 1.2 2013/01/22 15:23:51 kouichi Exp $
+ * $Id: main.m,v 1.1 2016/01/28 12:40:37 kouichi Exp $
  *
  *****************************************************************************/
 
 #import <UIKit/UIKit.h>
 
-//! Project version number for CalendarKit.
-FOUNDATION_EXPORT double CalendarKitVersionNumber;
+#import "AppDelegate.h"
 
-//! Project version string for CalendarKit.
-FOUNDATION_EXPORT const unsigned char CalendarKitVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <CalendarKit/PublicHeader.h>
-
-#import <CalendarKit/SCKCalendarView.h>
+int
+main(int argc, char * argv[])
+{
+  @autoreleasepool {
+    return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
+  }
+}

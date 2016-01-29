@@ -1,12 +1,12 @@
 /*****************************************************************************
  *
- * FILE:	CalendarKit.h
- * DESCRIPTION:	SimpleCalendarKit: Public Header
+ * FILE:	BaseViewController.m
+ * DESCRIPTION:	CalendarKitDemo: Base View Controller
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Thu, Jan 28 2016
+ * UPDATED:	Fri, Jan 29 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
- * URL:		http://www.MagickWorX.COM/
+ * URL:		http://www.iPhone.MagickWorX.COM/
  * COPYRIGHT:	(c) 2016 阿部康一／Kouichi ABE (WALL), All rights reserved.
  * LICENSE:
  *
@@ -36,18 +36,61 @@
  *   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  *   THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: CKCalendarView.h,v 1.2 2013/01/22 15:23:51 kouichi Exp $
+ * $Id: BaseViewController.m,v 1.1 2016/01/28 12:40:36 kouichi Exp $
  *
  *****************************************************************************/
 
-#import <UIKit/UIKit.h>
+#import "BaseViewController.h"
 
-//! Project version number for CalendarKit.
-FOUNDATION_EXPORT double CalendarKitVersionNumber;
+@interface BaseViewController ()
+@property (nonatomic,readwrite) AppDelegate *	app;
+@end
 
-//! Project version string for CalendarKit.
-FOUNDATION_EXPORT const unsigned char CalendarKitVersionString[];
+@implementation BaseViewController
 
-// In this header, you should import all the public headers of your framework using statements like #import <CalendarKit/PublicHeader.h>
+-(id)init
+{
+  self = [super init];
+  if (self != nil) {
+    self.app = (AppDelegate *)[UIApplication sharedApplication].delegate;
+  }
+  return self;
+}
 
-#import <CalendarKit/SCKCalendarView.h>
+-(void)didReceiveMemoryWarning
+{
+  /*
+   * Invoke super's implementation to do the Right Thing,
+   * but also release the input controller since we can do that.
+   * In practice this is unlikely to be used in this application,
+   * and it would be of little benefit,
+   * but the principle is the important thing.
+   */
+  [super didReceiveMemoryWarning];
+}
+
+-(void)loadView
+{
+  [super loadView];
+
+  self.edgesForExtendedLayout = UIRectEdgeNone;
+  self.extendedLayoutIncludesOpaqueBars = YES;
+  self.automaticallyAdjustsScrollViewInsets = NO;
+
+  self.view.backgroundColor	= [self.app colorWithHex:0xe5ccff];
+  self.view.autoresizingMask	= UIViewAutoresizingFlexibleWidth
+				| UIViewAutoresizingFlexibleHeight;
+
+  CGRect  frame = self.view.frame;
+  CGFloat statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
+  frame.origin.y    += statusBarHeight;
+  frame.size.height -= statusBarHeight;
+
+  CGFloat navBarHeight = self.navigationController.navigationBar.bounds.size.height;
+  frame.origin.y    += navBarHeight;
+  frame.size.height -= navBarHeight;
+
+  self.view.frame = frame;
+}
+
+@end

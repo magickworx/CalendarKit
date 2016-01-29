@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
- * FILE:	CalendarKit.h
- * DESCRIPTION:	SimpleCalendarKit: Public Header
+ * FILE:	RootViewController.h
+ * DESCRIPTION:	CalendarKitDemo: Application Root View Controller
  * DATE:	Thu, Jan 28 2016
  * UPDATED:	Thu, Jan 28 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
@@ -36,18 +36,11 @@
  *   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  *   THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: CKCalendarView.h,v 1.2 2013/01/22 15:23:51 kouichi Exp $
+ * $Id: RootViewController.h,v 1.1 2016/01/28 12:40:36 kouichi Exp $
  *
  *****************************************************************************/
 
-#import <UIKit/UIKit.h>
+#import "BaseViewController.h"
 
-//! Project version number for CalendarKit.
-FOUNDATION_EXPORT double CalendarKitVersionNumber;
-
-//! Project version string for CalendarKit.
-FOUNDATION_EXPORT const unsigned char CalendarKitVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <CalendarKit/PublicHeader.h>
-
-#import <CalendarKit/SCKCalendarView.h>
+@interface RootViewController : BaseViewController
+@end

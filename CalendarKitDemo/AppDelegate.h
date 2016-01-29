@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
- * FILE:	CalendarKit.h
- * DESCRIPTION:	SimpleCalendarKit: Public Header
+ * FILE:	AppDelegate.h
+ * DESCRIPTION:	CalendarKitDemo: Application Main Controller
  * DATE:	Thu, Jan 28 2016
  * UPDATED:	Thu, Jan 28 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
@@ -36,18 +36,26 @@
  *   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  *   THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: CKCalendarView.h,v 1.2 2013/01/22 15:23:51 kouichi Exp $
+ * $Id: AppDelegate.h,v 1.1 2016/01/28 12:40:36 kouichi Exp $
  *
  *****************************************************************************/
 
-#import <UIKit/UIKit.h>
+@import Foundation;
+@import UIKit;
 
-//! Project version number for CalendarKit.
-FOUNDATION_EXPORT double CalendarKitVersionNumber;
+#ifndef	ColorWithRGB
+#define	ColorWithRGB(r,g,b) \
+	[UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:1.0]
+#endif	// ColorWithRGB
 
-//! Project version string for CalendarKit.
-FOUNDATION_EXPORT const unsigned char CalendarKitVersionString[];
+@interface AppDelegate : UIResponder
 
-// In this header, you should import all the public headers of your framework using statements like #import <CalendarKit/PublicHeader.h>
+@property (nonatomic,strong) UIWindow *		window;
+@property (nonatomic,strong,readonly) UIColor *	themeColor;
 
-#import <CalendarKit/SCKCalendarView.h>
+-(UIColor *)textColor;
+-(UIColor *)colorWithHex:(int)hex;
+-(UIColor *)iOS7blueColor;
+-(UIColor *)iOS7barColor;
+
+@end

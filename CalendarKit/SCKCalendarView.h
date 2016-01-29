@@ -1,9 +1,9 @@
 /*****************************************************************************
  *
- * FILE:	CalendarKit.h
- * DESCRIPTION:	SimpleCalendarKit: Public Header
+ * FILE:	SCKCalendarView.h
+ * DESCRIPTION:	SimpleCalendarKit: Calendar View Class
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Thu, Jan 28 2016
+ * UPDATED:	Fri, Jan 29 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
  * URL:		http://www.MagickWorX.COM/
@@ -36,18 +36,27 @@
  *   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  *   THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: CKCalendarView.h,v 1.2 2013/01/22 15:23:51 kouichi Exp $
+ * $Id: SCKCalendarView.h,v 1.2 2013/01/22 15:23:51 kouichi Exp $
  *
  *****************************************************************************/
 
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-//! Project version number for CalendarKit.
-FOUNDATION_EXPORT double CalendarKitVersionNumber;
+@class	SCKCalendarView;
 
-//! Project version string for CalendarKit.
-FOUNDATION_EXPORT const unsigned char CalendarKitVersionString[];
+@protocol CKCalendarViewDelegate <NSObject>
+@optional
+-(void)calendarView:(SCKCalendarView *)calendarView didSetYear:(NSInteger)year month:(NSInteger)month;
+-(void)calendarView:(SCKCalendarView *)calendarView didSelectDate:(NSDate *)date;
+@end
 
-// In this header, you should import all the public headers of your framework using statements like #import <CalendarKit/PublicHeader.h>
+@interface SCKCalendarView : UIView
 
-#import <CalendarKit/SCKCalendarView.h>
+@property (nonatomic,weak) id <CKCalendarViewDelegate>	delegate;
+
+-(void)showThisMonth;
+-(void)showPreviousMonth;
+-(void)showNextMonth;
+
+@end
