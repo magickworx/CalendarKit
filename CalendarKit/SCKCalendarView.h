@@ -3,7 +3,7 @@
  * FILE:	SCKCalendarView.h
  * DESCRIPTION:	SimpleCalendarKit: Calendar View Class
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Fri, Jan 29 2016
+ * UPDATED:	Sat, Apr 16 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
  * URL:		http://www.MagickWorX.COM/
@@ -54,9 +54,12 @@
 @interface SCKCalendarView : UIView
 
 @property (nonatomic,weak) id <CKCalendarViewDelegate>	delegate;
+@property (nonatomic,readonly,getter=isJapanese) BOOL	japanese;
+@property (nonatomic,assign) BOOL /* 今日が目立つ */	showsToday;
+@property (nonatomic,assign,getter=isTitleHidden) BOOL	titleHidden;
 
--(void)showThisMonth;
--(void)showPreviousMonth;
--(void)showNextMonth;
+-(void)showsThisMonth;
+-(void)showsPreviousMonth;
+-(void)showsNextMonth;
 
 @end

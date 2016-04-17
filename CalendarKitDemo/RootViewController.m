@@ -3,7 +3,7 @@
  * FILE:	RootViewController.m
  * DESCRIPTION:	CalendarKitDemo: Application Root View Controller
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Fri, Jan 29 2016
+ * UPDATED:	Sat, Apr 16 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
  * URL:		http://www.MagickWorX.COM/
@@ -77,25 +77,27 @@
   CGFloat w = floorf(width * 0.5f);
   CGFloat h = w;
   CGFloat x = width - w;
-  CGFloat y = height - h;
+  CGFloat y = height - h - 22.0f;
 
   SCKCalendarView * calendarView;
   calendarView = [[SCKCalendarView alloc] initWithFrame:CGRectMake(x, y, w, h)];
   [self.view addSubview:calendarView];
-  [calendarView showNextMonth];
+  [calendarView showsNextMonth];
   self.nextCalView = calendarView;
 
   x = 0.0f;
   calendarView = [[SCKCalendarView alloc] initWithFrame:CGRectMake(x, y, w, h)];
   [self.view addSubview:calendarView];
-  [calendarView showPreviousMonth];
+  [calendarView showsPreviousMonth];
   self.prevCalView = calendarView;
 
   y = 0.0f;
-  h = height - h;
+  h = height - h - 44.0f;
   w = width;
   calendarView = [[SCKCalendarView alloc] initWithFrame:CGRectMake(x, y, w, h)];
   calendarView.delegate = self;
+  calendarView.showsToday = YES;
+  calendarView.titleHidden = YES;
   [self.view addSubview:calendarView];
   self.calendarView = calendarView;
 
@@ -146,29 +148,29 @@
 #pragma mark - UIBarButtonItem action
 -(void)prevAction:(id)sender
 {
-  [self.calendarView showPreviousMonth];
-  [self.prevCalView showPreviousMonth];
-  [self.nextCalView showPreviousMonth];
+  [self.calendarView showsPreviousMonth];
+  [self.prevCalView showsPreviousMonth];
+  [self.nextCalView showsPreviousMonth];
 }
 
 #pragma mark - UIBarButtonItem action
 -(void)nextAction:(id)sender
 {
-  [self.calendarView showNextMonth];
-  [self.prevCalView showNextMonth];
-  [self.nextCalView showNextMonth];
+  [self.calendarView showsNextMonth];
+  [self.prevCalView showsNextMonth];
+  [self.nextCalView showsNextMonth];
 }
 
 #pragma mark - UIButton action
 -(void)titleButtonAction:(UIButton *)button
 {
-  [self.calendarView showThisMonth];
+  [self.calendarView showsThisMonth];
 
-  [self.prevCalView showThisMonth];
-  [self.prevCalView showPreviousMonth];
+  [self.prevCalView showsThisMonth];
+  [self.prevCalView showsPreviousMonth];
 
-  [self.nextCalView showThisMonth];
-  [self.nextCalView showNextMonth];
+  [self.nextCalView showsThisMonth];
+  [self.nextCalView showsNextMonth];
 }
 
 /*****************************************************************************/

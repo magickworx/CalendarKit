@@ -3,7 +3,7 @@
  * FILE:	SCKCalendarView.m
  * DESCRIPTION:	SimpleCalendarKit: Calendar View Class
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Fri, Jan 29 2016
+ * UPDATED:	Sat, Apr 16 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
  * URL:		http://www.MagickWorX.COM/
@@ -42,80 +42,13 @@
 
 #import "SCKCalendarView.h"
 
-@interface DayCollectionCell : UICollectionViewCell
+@interface SCKCollectionHeaderView : UICollectionReusableView
 @property (nonatomic,strong,readonly) UILabel * textLabel;
 @end
 
-@interface DayCollectionCell ()
-@property (nonatomic,strong,readwrite) UILabel * textLabel;
+@interface SCKDayCollectionCell : UICollectionViewCell
+@property (nonatomic,strong,readonly) UILabel * textLabel;
 @end
-
-@implementation DayCollectionCell
-
--(instancetype)initWithFrame:(CGRect)frame
-{
-  self = [super initWithFrame:frame];
-  if (self) {
-    self.autoresizesSubviews	= YES;
-    self.autoresizingMask	= UIViewAutoresizingFlexibleWidth
-				| UIViewAutoresizingFlexibleHeight
-				| UIViewAutoresizingFlexibleLeftMargin
-				| UIViewAutoresizingFlexibleRightMargin
-				| UIViewAutoresizingFlexibleTopMargin
-				| UIViewAutoresizingFlexibleBottomMargin;
-
-    UILabel * textLabel;
-    textLabel = [[UILabel alloc]
-		  initWithFrame:CGRectInset(self.bounds, 2.0f, 2.0f)];
-#if	0
-    textLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-#endif
-    textLabel.textColor = [UIColor blackColor];
-    textLabel.textAlignment = NSTextAlignmentCenter;
-    textLabel.backgroundColor = [UIColor clearColor];
-    [self addSubview:textLabel];
-    self.textLabel = textLabel;
-  }
-  return self;
-}
-
--(void)prepareForReuse
-{
-  [super prepareForReuse];
-
-  self.textLabel.text = nil;
-  self.textLabel.textColor = [UIColor blackColor];
-  self.textLabel.adjustsFontSizeToFitWidth = NO;
-}
-
--(void)layoutSubviews
-{
-  [super layoutSubviews];
-
-  [self adjustFontSize];
-}
-
--(void)adjustFontSize
-{
-  CGFloat width  = self.textLabel.frame.size.width;
-  CGFloat height = self.textLabel.frame.size.height;
-  CGFloat maxLineHeight = width < height ? width : height;
-  /*
-   * font.lineHeight = font.ascender + font.descender
-   */
-  CGFloat fontSize = 10.0f;	// start font size (= minimum font size)
-  for ( ; ; fontSize += 0.5f) {
-    UIFont * font = [UIFont systemFontOfSize:fontSize];
-    CGFloat topPadding = font.ascender - font.capHeight;
-    if (font.lineHeight >= maxLineHeight - topPadding) {
-      self.textLabel.font = font;
-      break;
-    }
-  }
-}
-
-@end
-
 
 /*****************************************************************************/
 
@@ -127,19 +60,25 @@ enum {
 
 static NSString * const	kNameCellIdentifier = @"NameCollectionCellIdentifer";
 static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
+static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 
 @interface SCKCalendarView () <UICollectionViewDataSource,UICollectionViewDelegate>
+@property (nonatomic,readwrite,getter=isJapanese) BOOL	japanese;
 @property (nonatomic,strong) UICollectionView *	collectionView;
 @property (nonatomic,strong) NSDateFormatter *	dateFormatter;
 @property (nonatomic,strong) NSCalendar *	calendar;
 @property (nonatomic,strong) NSDate *		selectedDate;
 @property (nonatomic,strong) NSDate *		firstDateOfMonth;
+@property (nonatomic,strong) NSDate *		dateOfToday;
 @property (nonatomic,assign) NSRange		daysInMonth;
 @property (nonatomic,assign) NSInteger		year;
 @property (nonatomic,assign) NSInteger		month;
 @property (nonatomic,assign) NSInteger		day;
-@property (nonatomic,getter=isJapanese) BOOL	japanese;
-@property (nonatomic,strong) NSArray *		namesOfDayOfWeek;
+@property (nonatomic,assign) CGFloat		titleHeight;
+@property (nonatomic,assign) CGFloat		wdayHeight;
+@property (nonatomic,assign) CGFloat		mdayHeight;
+@property (nonatomic,strong) NSArray *		nameOfDayOfWeek;
+@property (nonatomic,strong) NSArray *		nameOfMonth;
 @end
 
 @implementation SCKCalendarView
@@ -165,9 +104,9 @@ static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
     collectionView = [[UICollectionView alloc]
 		      initWithFrame:self.bounds
 		      collectionViewLayout:layout];
-    [collectionView registerClass:[DayCollectionCell class]
+    [collectionView registerClass:[SCKDayCollectionCell class]
 		    forCellWithReuseIdentifier:kDayCellIdentifier];
-    [collectionView registerClass:[DayCollectionCell class]
+    [collectionView registerClass:[SCKDayCollectionCell class]
 		    forCellWithReuseIdentifier:kNameCellIdentifier];
     collectionView.backgroundColor = [UIColor clearColor];
     collectionView.delegate = self;
@@ -185,11 +124,22 @@ static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
     NSString * lang = [[NSLocale preferredLanguages][0] substringToIndex:2];
     self.japanese   = [lang isEqualToString:@"ja"];
     if (self.isJapanese) {
-      self.namesOfDayOfWeek = @[ @"日", @"月", @"火", @"水", @"木", @"金", @"土" ];
+      self.nameOfDayOfWeek = @[ @"日", @"月", @"火", @"水", @"木", @"金", @"土" ];
+      self.nameOfMonth = @[
+	@"睦月", @"如月", @"弥生", @"卯月", @"皐月", @"水無月",
+	@"文月", @"葉月", @"長月", @"神無月", @"霜月", @"師走"
+      ];
     }
     else {
-      self.namesOfDayOfWeek = @[ @"Sun", @"Mon", @"Tue", @"Wed", @"Thu", @"Fri", @"Sat" ];
+      self.nameOfDayOfWeek = @[ @"Sun", @"Mon", @"Tue", @"Wed", @"Thu", @"Fri", @"Sat" ];
+      self.nameOfMonth = @[
+	@"January", @"February", @"March", @"April", @"May", @"June",
+	@"July", @"August", @"September", @"October", @"November", @"December"
+      ];
     }
+
+    _showsToday  = NO;
+    _titleHidden = NO;
   }
   return self;
 }
@@ -198,7 +148,27 @@ static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
 {
   [super didMoveToSuperview];
 
-  self.selectedDate = [NSDate date];
+  self.dateOfToday  = [NSDate date];
+  self.selectedDate = _dateOfToday;
+
+  [self.collectionView registerClass:[SCKCollectionHeaderView class]
+		       forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+		       withReuseIdentifier:kHeaderIdentifier];
+
+  CGFloat height = self.collectionView.frame.size.height;
+  if (_titleHidden) {
+    _titleHeight = 0.0f;
+    // XXX: 曜日名は日にちの高さの半分 (height = 6h + 0.5h)
+    _wdayHeight  = floorf(height / 13.0f);
+    _mdayHeight  = floorf(2.0f * height / 13.0f);
+  }
+  else {
+    // XXX: "年月"と"曜日"の高さの合計が日付の一つの高さに同じ
+    CGFloat    h = floorf(height / 7.0f);
+    _titleHeight = floorf(h * 0.5f);
+    _wdayHeight  = floorf(h * 0.5f);
+    _mdayHeight  = h;
+  }
 }
 
 /*****************************************************************************/
@@ -238,7 +208,7 @@ static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
 /*****************************************************************************/
 
 #pragma mark - public method
--(void)showThisMonth
+-(void)showsThisMonth
 {
   self.selectedDate = [NSDate date];
 }
@@ -253,7 +223,7 @@ static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
 }
 
 #pragma mark - public method
--(void)showPreviousMonth
+-(void)showsPreviousMonth
 {
   self.selectedDate = [self dateOfPreviousMonth];
 }
@@ -268,7 +238,7 @@ static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
 }
 
 #pragma mark - public method
--(void)showNextMonth
+-(void)showsNextMonth
 {
   self.selectedDate = [self dateOfNextMonth];
 }
@@ -348,23 +318,37 @@ static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
     default: textColor = [UIColor blackColor]; break; // Weekday
   }
 
-  DayCollectionCell * cell;
+  SCKDayCollectionCell * cell;
   switch (section) {
     case kSectionHeader: {
-	cell = (DayCollectionCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kNameCellIdentifier forIndexPath:indexPath];
+	cell = (SCKDayCollectionCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kNameCellIdentifier forIndexPath:indexPath];
 	if (!self.isJapanese) {
 	  cell.textLabel.adjustsFontSizeToFitWidth = YES;
 	}
-	cell.textLabel.text = self.namesOfDayOfWeek[item];
+	cell.textLabel.text = self.nameOfDayOfWeek[item];
       }
       break;
     case kSectionBody: {
-	cell = (DayCollectionCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kDayCellIdentifier forIndexPath:indexPath];
+	cell = (SCKDayCollectionCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kDayCellIdentifier forIndexPath:indexPath];
 
 	NSDateComponents * dateComponents;
 	dateComponents = [self dateComponentsForCellAtIndexPath:indexPath];
 	NSDate *  date = [self dateWithDateComponents:dateComponents];
 	cell.textLabel.text = [self.dateFormatter stringFromDate:date];
+
+	if (_showsToday) {
+	  NSCalendarUnit unitFlags = NSCalendarUnitYear
+				   | NSCalendarUnitMonth
+				   | NSCalendarUnitDay;
+	  NSComparisonResult result =
+		[[NSCalendar currentCalendar]
+		  compareDate:self.dateOfToday toDate:date
+		  toUnitGranularity:unitFlags];
+	  if (result == NSOrderedSame) {
+	    cell.contentView.backgroundColor =
+		[UIColor colorWithRed:0.8f green:1.0f blue:0.6f alpha:1.0f];
+	  }
+	}
 
 	NSInteger    day = dateComponents.day + 1;
 	NSInteger endDay = self.daysInMonth.length;
@@ -381,7 +365,6 @@ static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
   return cell;
 }
 
-#if	0
 #pragma mark - UICollectionViewDataSource (optional)
 // The view that is returned must be retrieved from a call to
 // -dequeueReusableSupplementaryViewOfKind:withReuseIdentifier:forIndexPath:
@@ -389,8 +372,31 @@ static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
 	viewForSupplementaryElementOfKind:(NSString *)kind
 	atIndexPath:(NSIndexPath *)indexPath
 {
+  if (indexPath.section != kSectionHeader ||
+      ![kind isEqualToString:UICollectionElementKindSectionHeader]) {
+    return nil;
+  }
+
+  SCKCollectionHeaderView * headerView =
+	(SCKCollectionHeaderView *)[collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+		withReuseIdentifier:kHeaderIdentifier
+		forIndexPath:indexPath];
+  if (headerView == nil) {
+    headerView = [[SCKCollectionHeaderView alloc] initWithFrame:CGRectZero];
+  }
+
+  NSString * text;
+  if (self.isJapanese) {
+    text = [NSString stringWithFormat:@"%zd年%2zd月", _year, _month];
+  }
+  else {
+    text = [NSString stringWithFormat:@"%@ %zd",
+		     self.nameOfMonth[_month - 1], _year];
+  }
+  headerView.textLabel.text = text;
+
+  return headerView;
 }
-#endif
 
 #pragma mark - UICollectionViewDelegate (optional)
 -(void)collectionView:(UICollectionView *)collectionView
@@ -412,31 +418,178 @@ static NSString * const	kDayCellIdentifier  = @"DayCollectionCellIdentifer";
 	layout:(UICollectionViewLayout*)collectionViewLayout
 	sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-#if	1
   CGFloat width  = collectionView.bounds.size.width;
   CGFloat height = collectionView.bounds.size.height;
 
   CGFloat w = floorf(width  / 7.0f);
   CGFloat h = floorf(height / 6.0f);	// XXX: 曜日名なしの場合の計算
 
-  // XXX: 曜日名は日にちの高さの半分 (height = 6h + 0.5h)
   NSInteger section = indexPath.section;
   switch (section) {
-    case kSectionHeader:
-      h = floorf(height / 13.0f);
-      break;
-    case kSectionBody:
-      h = floorf(2.0f * height / 13.0f);
-      break;
+    case kSectionHeader: h = _wdayHeight; break;
+    case kSectionBody:   h = _mdayHeight; break;
   }
+
   return CGSizeMake(w, h);
-#else
-  CGFloat width  = collectionView.bounds.size.width;
-  CGFloat height = collectionView.bounds.size.height;
-  CGFloat w = floorf(width  / 7.0f);
-  CGFloat h = floorf(height / 6.0f);
-  return CGSizeMake(w, h);
-#endif
+}
+
+#pragma mark - UICollectionViewDelegateFlowLayout (optional)
+-(CGSize)collectionView:(UICollectionView *)collectionView
+	layout:(UICollectionViewLayout*)collectionViewLayout
+	referenceSizeForHeaderInSection:(NSInteger)section
+{
+  if (section == kSectionHeader && !_titleHidden) {
+    CGFloat w = collectionView.bounds.size.width;
+    CGFloat h = _titleHeight;
+
+    return CGSizeMake(w, h);
+  }
+  return CGSizeZero;
+}
+
+@end
+
+/******************************************************************************
+ *
+ *	Custom UICollectionViewCell
+ *
+ *****************************************************************************/
+@interface SCKDayCollectionCell ()
+@property (nonatomic,strong,readwrite) UILabel * textLabel;
+@end
+
+@implementation SCKDayCollectionCell
+
+-(instancetype)initWithFrame:(CGRect)frame
+{
+  self = [super initWithFrame:frame];
+  if (self) {
+    self.autoresizesSubviews	= YES;
+    self.autoresizingMask	= UIViewAutoresizingFlexibleWidth
+				| UIViewAutoresizingFlexibleHeight
+				| UIViewAutoresizingFlexibleLeftMargin
+				| UIViewAutoresizingFlexibleRightMargin
+				| UIViewAutoresizingFlexibleTopMargin
+				| UIViewAutoresizingFlexibleBottomMargin;
+
+    UILabel * textLabel;
+    textLabel = [[UILabel alloc]
+		  initWithFrame:CGRectInset(self.bounds, 2.0f, 2.0f)];
+    textLabel.textColor = [UIColor blackColor];
+    textLabel.textAlignment = NSTextAlignmentCenter;
+    textLabel.backgroundColor = [UIColor clearColor];
+    [self.contentView addSubview:textLabel];
+    self.textLabel = textLabel;
+  }
+  return self;
+}
+
+-(void)prepareForReuse
+{
+  [super prepareForReuse];
+
+  self.textLabel.text = nil;
+  self.textLabel.textColor = [UIColor blackColor];
+  self.textLabel.adjustsFontSizeToFitWidth = NO;
+
+  self.contentView.backgroundColor = nil;
+}
+
+-(void)layoutSubviews
+{
+  [super layoutSubviews];
+
+  [self adjustFontSize];
+}
+
+-(void)adjustFontSize
+{
+  CGFloat width  = self.textLabel.frame.size.width;
+  CGFloat height = self.textLabel.frame.size.height;
+  CGFloat maxLineHeight = width < height ? width : height;
+  /*
+   * font.lineHeight = font.ascender + font.descender
+   */
+  CGFloat fontSize = 10.0f;	// start font size (= minimum font size)
+  for ( ; ; fontSize += 0.5f) {
+    UIFont * font = [UIFont systemFontOfSize:fontSize];
+    CGFloat topPadding = font.ascender - font.capHeight;
+    if (font.lineHeight >= maxLineHeight - topPadding) {
+      self.textLabel.font = font;
+      break;
+    }
+  }
+}
+
+@end
+
+/******************************************************************************
+ *
+ *	Custom UICollectionReusableView for Section Header
+ *
+ *****************************************************************************/
+@interface SCKCollectionHeaderView ()
+@property (nonatomic,strong,readwrite) UILabel * textLabel;
+@end
+
+@implementation SCKCollectionHeaderView
+
+-(instancetype)initWithFrame:(CGRect)frame
+{
+  self = [super initWithFrame:frame];
+  if (self) {
+    self.autoresizesSubviews	= YES;
+    self.autoresizingMask	= UIViewAutoresizingFlexibleWidth
+				| UIViewAutoresizingFlexibleHeight
+				| UIViewAutoresizingFlexibleLeftMargin
+				| UIViewAutoresizingFlexibleRightMargin
+				| UIViewAutoresizingFlexibleTopMargin
+				| UIViewAutoresizingFlexibleBottomMargin;
+
+    UILabel * textLabel;
+    textLabel = [[UILabel alloc] initWithFrame:self.bounds];
+    textLabel.textColor = [UIColor blackColor];
+    textLabel.textAlignment = NSTextAlignmentCenter;
+    textLabel.backgroundColor = [UIColor clearColor];
+    [self addSubview:textLabel];
+    self.textLabel = textLabel;
+  }
+  return self;
+}
+
+-(void)prepareForReuse
+{
+  [super prepareForReuse];
+
+  self.textLabel.text = nil;
+  self.textLabel.textColor = [UIColor blackColor];
+  self.textLabel.adjustsFontSizeToFitWidth = NO;
+}
+
+-(void)layoutSubviews
+{
+  [super layoutSubviews];
+
+  [self adjustFontSize];
+}
+
+-(void)adjustFontSize
+{
+  CGFloat width  = self.textLabel.frame.size.width;
+  CGFloat height = self.textLabel.frame.size.height;
+  CGFloat maxLineHeight = width < height ? width : height;
+  /*
+   * font.lineHeight = font.ascender + font.descender
+   */
+  CGFloat fontSize = 10.0f;	// start font size (= minimum font size)
+  for ( ; ; fontSize += 0.5f) {
+    UIFont * font = [UIFont systemFontOfSize:fontSize];
+    CGFloat topPadding = font.ascender - font.capHeight;
+    if (font.lineHeight >= maxLineHeight - topPadding) {
+      self.textLabel.font = font;
+      break;
+    }
+  }
 }
 
 @end
