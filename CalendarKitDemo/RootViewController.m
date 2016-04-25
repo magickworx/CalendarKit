@@ -3,7 +3,7 @@
  * FILE:	RootViewController.m
  * DESCRIPTION:	CalendarKitDemo: Application Root View Controller
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Sat, Apr 16 2016
+ * UPDATED:	Mon, Apr 25 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
  * URL:		http://www.MagickWorX.COM/
@@ -43,7 +43,7 @@
 #import <CalendarKit/CalendarKit.h>
 #import "RootViewController.h"
 
-@interface RootViewController () <CKCalendarViewDelegate>
+@interface RootViewController () <SCKCalendarViewDelegate>
 @property (nonatomic,strong) SCKCalendarView *	calendarView;	// 今月
 @property (nonatomic,strong) SCKCalendarView *	prevCalView;	// 先月
 @property (nonatomic,strong) SCKCalendarView *	nextCalView;	// 来月
@@ -74,23 +74,28 @@
   CGFloat width  = self.view.bounds.size.width;
   CGFloat height = self.view.bounds.size.height;
 
-  CGFloat w = floorf(width * 0.5f);
+  CGFloat w = floorf(width * 0.5f) - 8.0f;
   CGFloat h = w;
-  CGFloat x = width - w;
+  CGFloat x = width - (w + 4.0f);
   CGFloat y = height - h - 22.0f;
 
   SCKCalendarView * calendarView;
   calendarView = [[SCKCalendarView alloc] initWithFrame:CGRectMake(x, y, w, h)];
+  calendarView.showsMonth = YES;
+  calendarView.prefersWareki = YES;
   [self.view addSubview:calendarView];
   [calendarView showsNextMonth];
   self.nextCalView = calendarView;
 
-  x = 0.0f;
+  x = 4.0f;
   calendarView = [[SCKCalendarView alloc] initWithFrame:CGRectMake(x, y, w, h)];
+  calendarView.showsMonth = YES;
+  calendarView.prefersWareki = YES;
   [self.view addSubview:calendarView];
   [calendarView showsPreviousMonth];
   self.prevCalView = calendarView;
 
+  x = 0.0f;
   y = 0.0f;
   h = height - h - 44.0f;
   w = width;
@@ -175,7 +180,7 @@
 
 /*****************************************************************************/
 
-#pragma mark - CKCalendarViewDelegate (optional)
+#pragma mark - SCKCalendarViewDelegate (optional)
 -(void)calendarView:(SCKCalendarView *)calendarView
 	didSetYear:(NSInteger)year month:(NSInteger)month
 {
@@ -183,7 +188,7 @@
   [self.titleButton setTitle:self.title forState:UIControlStateNormal];
 }
 
-#pragma mark - CKCalendarViewDelegate (optional)
+#pragma mark - SCKCalendarViewDelegate (optional)
 -(void)calendarView:(SCKCalendarView *)calendarView didSelectDate:(NSDate *)date{
   @autoreleasepool {
     NSString * message = [NSDateFormatter localizedStringFromDate:date

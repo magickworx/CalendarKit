@@ -3,7 +3,7 @@
  * FILE:	SCKCalendarView.h
  * DESCRIPTION:	SimpleCalendarKit: Calendar View Class
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Sat, Apr 16 2016
+ * UPDATED:	Mon, Apr 25 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
  * URL:		http://www.MagickWorX.COM/
@@ -45,7 +45,7 @@
 
 @class	SCKCalendarView;
 
-@protocol CKCalendarViewDelegate <NSObject>
+@protocol SCKCalendarViewDelegate <NSObject>
 @optional
 -(void)calendarView:(SCKCalendarView *)calendarView didSetYear:(NSInteger)year month:(NSInteger)month;
 -(void)calendarView:(SCKCalendarView *)calendarView didSelectDate:(NSDate *)date;
@@ -53,13 +53,25 @@
 
 @interface SCKCalendarView : UIView
 
-@property (nonatomic,weak) id <CKCalendarViewDelegate>	delegate;
+@property (nonatomic,weak) id <SCKCalendarViewDelegate>	delegate;
 @property (nonatomic,readonly,getter=isJapanese) BOOL	japanese;
+@property (nonatomic,assign,readonly) NSInteger		year;
+@property (nonatomic,assign,readonly) NSInteger		month;
 @property (nonatomic,assign) BOOL /* 今日が目立つ */	showsToday;
+@property (nonatomic,assign) BOOL /* 透過型"月"表示 */	showsMonth;
+@property (nonatomic,assign) BOOL /* 和暦の月名称 */	prefersWareki;
 @property (nonatomic,assign,getter=isTitleHidden) BOOL	titleHidden;
+@property (nonatomic,strong) UIColor * /* 休日祝祭日*/	sundayColor;
+@property (nonatomic,strong) UIColor *			saturdayColor;
+@property (nonatomic,strong) UIColor *			weekdayColor;
+@property (nonatomic,strong) UIColor *			todayColor;
+@property (nonatomic,strong) UIColor * /* 年月領域 */	titleColor;
 
 -(void)showsThisMonth;
 -(void)showsPreviousMonth;
 -(void)showsNextMonth;
+
+-(void)showsYear:(NSInteger)year month:(NSInteger)month;
+-(void)update;
 
 @end

@@ -3,7 +3,7 @@
  * FILE:	SCKCalendarView.m
  * DESCRIPTION:	SimpleCalendarKit: Calendar View Class
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Sat, Apr 16 2016
+ * UPDATED:	Mon, Apr 25 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
  * URL:		http://www.MagickWorX.COM/
@@ -64,6 +64,8 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 
 @interface SCKCalendarView () <UICollectionViewDataSource,UICollectionViewDelegate>
 @property (nonatomic,readwrite,getter=isJapanese) BOOL	japanese;
+@property (nonatomic,assign,readwrite) NSInteger	year;
+@property (nonatomic,assign,readwrite) NSInteger	month;
 @property (nonatomic,strong) UICollectionView *	collectionView;
 @property (nonatomic,strong) NSDateFormatter *	dateFormatter;
 @property (nonatomic,strong) NSCalendar *	calendar;
@@ -71,14 +73,12 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 @property (nonatomic,strong) NSDate *		firstDateOfMonth;
 @property (nonatomic,strong) NSDate *		dateOfToday;
 @property (nonatomic,assign) NSRange		daysInMonth;
-@property (nonatomic,assign) NSInteger		year;
-@property (nonatomic,assign) NSInteger		month;
-@property (nonatomic,assign) NSInteger		day;
 @property (nonatomic,assign) CGFloat		titleHeight;
 @property (nonatomic,assign) CGFloat		wdayHeight;
 @property (nonatomic,assign) CGFloat		mdayHeight;
 @property (nonatomic,strong) NSArray *		nameOfDayOfWeek;
 @property (nonatomic,strong) NSArray *		nameOfMonth;
+@property (nonatomic,strong) CATextLayer *	textLayer;
 @end
 
 @implementation SCKCalendarView
@@ -89,11 +89,7 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
   if (self) {
     self.autoresizesSubviews	= YES;
     self.autoresizingMask	= UIViewAutoresizingFlexibleWidth
-				| UIViewAutoresizingFlexibleHeight
-				| UIViewAutoresizingFlexibleLeftMargin
-				| UIViewAutoresizingFlexibleRightMargin
-				| UIViewAutoresizingFlexibleTopMargin
-				| UIViewAutoresizingFlexibleBottomMargin;
+				| UIViewAutoresizingFlexibleHeight;
 
     UICollectionViewFlowLayout * layout;
     layout = [UICollectionViewFlowLayout new];
@@ -115,31 +111,11 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
     [self addSubview:collectionView];
     self.collectionView = collectionView;
 
-    NSDateFormatter * dateFormatter = [NSDateFormatter new];
-    dateFormatter.dateFormat = @"d";
-    self.dateFormatter = dateFormatter;
+    [collectionView registerClass:[SCKCollectionHeaderView class]
+		    forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+		    withReuseIdentifier:kHeaderIdentifier];
 
-    self.calendar = [NSCalendar currentCalendar];
-
-    NSString * lang = [[NSLocale preferredLanguages][0] substringToIndex:2];
-    self.japanese   = [lang isEqualToString:@"ja"];
-    if (self.isJapanese) {
-      self.nameOfDayOfWeek = @[ @"日", @"月", @"火", @"水", @"木", @"金", @"土" ];
-      self.nameOfMonth = @[
-	@"睦月", @"如月", @"弥生", @"卯月", @"皐月", @"水無月",
-	@"文月", @"葉月", @"長月", @"神無月", @"霜月", @"師走"
-      ];
-    }
-    else {
-      self.nameOfDayOfWeek = @[ @"Sun", @"Mon", @"Tue", @"Wed", @"Thu", @"Fri", @"Sat" ];
-      self.nameOfMonth = @[
-	@"January", @"February", @"March", @"April", @"May", @"June",
-	@"July", @"August", @"September", @"October", @"November", @"December"
-      ];
-    }
-
-    _showsToday  = NO;
-    _titleHidden = NO;
+    [self prepareForCalendar];
   }
   return self;
 }
@@ -148,12 +124,14 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 {
   [super didMoveToSuperview];
 
-  self.dateOfToday  = [NSDate date];
-  self.selectedDate = _dateOfToday;
+  [self update];
+}
 
-  [self.collectionView registerClass:[SCKCollectionHeaderView class]
-		       forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
-		       withReuseIdentifier:kHeaderIdentifier];
+-(void)layoutSubviews
+{
+  [super layoutSubviews];
+
+  self.collectionView.frame = self.bounds;
 
   CGFloat height = self.collectionView.frame.size.height;
   if (_titleHidden) {
@@ -173,6 +151,74 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 
 /*****************************************************************************/
 
+-(void)prepareForCalendar
+{
+  NSDateFormatter * dateFormatter = [NSDateFormatter new];
+  dateFormatter.dateFormat = @"d";
+  self.dateFormatter = dateFormatter;
+
+  self.calendar = [NSCalendar currentCalendar];
+
+  NSString * lang = [[NSLocale preferredLanguages][0] substringToIndex:2];
+  self.japanese   = [lang isEqualToString:@"ja"];
+  if (self.isJapanese) {
+    self.nameOfDayOfWeek = @[ @"日", @"月", @"火", @"水", @"木", @"金", @"土" ];
+    self.nameOfMonth = @[
+	@"睦月", @"如月", @"弥生", @"卯月", @"皐月", @"水無月",
+	@"文月", @"葉月", @"長月", @"神無月", @"霜月", @"師走"
+    ];
+  }
+  else {
+    self.nameOfDayOfWeek = @[ @"Sun", @"Mon", @"Tue", @"Wed", @"Thu", @"Fri", @"Sat" ];
+    self.nameOfMonth = @[
+	@"January", @"February", @"March", @"April", @"May", @"June",
+	@"July", @"August", @"September", @"October", @"November", @"December"
+    ];
+  }
+
+  _showsToday    = NO;
+  _showsMonth    = NO;
+  _prefersWareki = NO;
+  _titleHidden   = NO;
+
+  self.sundayColor   = [UIColor redColor];
+  self.saturdayColor = [UIColor blueColor];
+  self.weekdayColor  = [UIColor blackColor];
+  self.todayColor    = [UIColor colorWithRed:0.8f green:1.0f blue:0.6f
+				alpha:1.0f];
+  self.titleColor    = [UIColor blackColor];
+}
+
+#pragma mark - override setter
+-(void)setShowsMonth:(BOOL)showsMonth
+{
+  if (showsMonth) {
+    if (_textLayer == nil) {
+      CATextLayer * textLayer = [CATextLayer new];
+      CGRect   bounds = self.collectionView.bounds;
+      CGFloat   width = bounds.size.width;
+      CGFloat  height = bounds.size.height;
+      CGFloat      dx = floorf(width * 0.1f);
+      CGFloat      dy = floorf(height * 0.1f);
+      textLayer.frame = CGRectInset(bounds, dx, dy);
+      textLayer.fontSize = floorf(textLayer.frame.size.height * 0.8f);
+      textLayer.opacity = 0.20f;
+      textLayer.foregroundColor = [UIColor lightGrayColor].CGColor;
+      textLayer.alignmentMode = kCAAlignmentCenter;
+      textLayer.contentsScale = [UIScreen mainScreen].scale;
+      textLayer.zPosition = -100.0;
+      [self.collectionView.layer addSublayer:textLayer];
+      self.textLayer = textLayer;
+    }
+    self.textLayer.string = [NSString stringWithFormat:@"%zd", _month];
+  }
+  self.textLayer.hidden = !showsMonth;
+
+  _showsMonth = showsMonth;
+}
+
+/*****************************************************************************/
+
 #pragma mark - override setter
 -(void)setSelectedDate:(NSDate *)selectedDate
 {
@@ -187,7 +233,6 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 
     _year  = dateComponents.year;
     _month = dateComponents.month;
-    _day   = dateComponents.day;
 
     dateComponents.day = 1;
     self.firstDateOfMonth = [self.calendar dateFromComponents:dateComponents];
@@ -198,6 +243,10 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 				      forDate:selectedDate];
 
     [self.collectionView reloadData];
+
+    if (_showsMonth) {
+      self.textLayer.string = [NSString stringWithFormat:@"%zd", _month];
+    }
 
     if ([_delegate respondsToSelector:@selector(calendarView:didSetYear:month:)]) {
       [_delegate calendarView:self didSetYear:_year month:_month];
@@ -241,6 +290,24 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 -(void)showsNextMonth
 {
   self.selectedDate = [self dateOfNextMonth];
+}
+
+#pragma mark - public method
+-(void)showsYear:(NSInteger)year month:(NSInteger)month
+{
+  NSDateComponents * dateComponents = [NSDateComponents new];
+  dateComponents.year  = year;
+  dateComponents.month = month;
+  dateComponents.day   = 1;
+  self.selectedDate = [self.calendar dateFromComponents:dateComponents];
+}
+
+#pragma mark - public method
+-(void)update
+{
+  self.dateOfToday = [NSDate date];
+
+  [self showsThisMonth];
 }
 
 /*****************************************************************************/
@@ -311,11 +378,11 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
   NSInteger section = indexPath.section;
   NSInteger item    = indexPath.item;
 
-  UIColor * textColor = [UIColor blackColor];
+  UIColor * textColor;
   switch (item % 7) {
-     case 0: textColor = [UIColor redColor];   break; // Sunday
-     case 6: textColor = [UIColor blueColor];  break; // Saturday
-    default: textColor = [UIColor blackColor]; break; // Weekday
+     case 0: textColor = self.sundayColor;   break; // Sunday
+     case 6: textColor = self.saturdayColor; break; // Saturday
+    default: textColor = self.weekdayColor;  break; // Weekday
   }
 
   SCKDayCollectionCell * cell;
@@ -346,7 +413,7 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 		  toUnitGranularity:unitFlags];
 	  if (result == NSOrderedSame) {
 	    cell.contentView.backgroundColor =
-		[UIColor colorWithRed:0.8f green:1.0f blue:0.6f alpha:1.0f];
+		[self.todayColor colorWithAlphaComponent:0.5f];
 	  }
 	}
 
@@ -387,13 +454,20 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 
   NSString * text;
   if (self.isJapanese) {
-    text = [NSString stringWithFormat:@"%zd年%2zd月", _year, _month];
+    if (_prefersWareki) {
+      text = [NSString stringWithFormat:@"%zd年 %@",
+		       _year, self.nameOfMonth[_month - 1]];
+    }
+    else {
+      text = [NSString stringWithFormat:@"%zd年 %zd月", _year, _month];
+    }
   }
   else {
     text = [NSString stringWithFormat:@"%@ %zd",
 		     self.nameOfMonth[_month - 1], _year];
   }
   headerView.textLabel.text = text;
+  headerView.textLabel.textColor = self.titleColor;
 
   return headerView;
 }
