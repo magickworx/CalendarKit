@@ -3,7 +3,7 @@
  * FILE:	SCKCalendarView.m
  * DESCRIPTION:	SimpleCalendarKit: Calendar View Class
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Mon, Apr 25 2016
+ * UPDATED:	Thu, Apr 28 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
  * URL:		http://www.MagickWorX.COM/
@@ -124,7 +124,8 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 {
   [super didMoveToSuperview];
 
-  [self update];
+  self.dateOfToday = [NSDate date];
+  [self showsThisMonth];
 }
 
 -(void)layoutSubviews
@@ -307,7 +308,13 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 {
   self.dateOfToday = [NSDate date];
 
-  [self showsThisMonth];
+  [self.collectionView reloadData];
+}
+
+#pragma mark - public method
+-(void)reload
+{
+  [self.collectionView reloadData];
 }
 
 /*****************************************************************************/
