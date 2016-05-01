@@ -3,7 +3,7 @@
  * FILE:	SCKCalendarView.m
  * DESCRIPTION:	SimpleCalendarKit: Calendar View Class
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Thu, Apr 28 2016
+ * UPDATED:	Sun, May  1 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
  * URL:		http://www.MagickWorX.COM/
@@ -410,24 +410,25 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
 	NSDate *  date = [self dateWithDateComponents:dateComponents];
 	cell.textLabel.text = [self.dateFormatter stringFromDate:date];
 
-	if (_showsToday) {
-	  NSCalendarUnit unitFlags = NSCalendarUnitYear
-				   | NSCalendarUnitMonth
-				   | NSCalendarUnitDay;
-	  NSComparisonResult result =
-		[[NSCalendar currentCalendar]
-		  compareDate:self.dateOfToday toDate:date
-		  toUnitGranularity:unitFlags];
-	  if (result == NSOrderedSame) {
-	    cell.contentView.backgroundColor =
-		[self.todayColor colorWithAlphaComponent:0.5f];
-	  }
-	}
-
 	NSInteger    day = dateComponents.day + 1;
 	NSInteger endDay = self.daysInMonth.length;
 	BOOL inThisMonth = (day > 0 && day <= endDay);
-	if (!inThisMonth) {
+	if (inThisMonth) {
+	  if (_showsToday) {
+	    NSCalendarUnit unitFlags = NSCalendarUnitYear
+				     | NSCalendarUnitMonth
+				     | NSCalendarUnitDay;
+	    NSComparisonResult result =
+		[[NSCalendar currentCalendar]
+		  compareDate:self.dateOfToday toDate:date
+		  toUnitGranularity:unitFlags];
+	    if (result == NSOrderedSame) {
+	      cell.contentView.backgroundColor =
+		[self.todayColor colorWithAlphaComponent:0.5f];
+	    }
+	  }
+	}
+	else {
 	  textColor = [textColor colorWithAlphaComponent:0.3f];
 	}
       }
