@@ -3,7 +3,7 @@
  * FILE:	SCKCalendarView.m
  * DESCRIPTION:	SimpleCalendarKit: Calendar View Class
  * DATE:	Thu, Jan 28 2016
- * UPDATED:	Sun, May  1 2016
+ * UPDATED:	Sun, May  8 2016
  * AUTHOR:	Kouichi ABE (WALL) / 阿部康一
  * E-MAIL:	kouichi@MagickWorX.COM
  * URL:		http://www.MagickWorX.COM/
@@ -150,6 +150,22 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
   }
 }
 
+#pragma mark - override setter
+-(void)setFrame:(CGRect)frame
+{
+  [super setFrame:frame];
+
+  if (_showsMonth) {
+    CGRect   bounds = self.bounds;
+    CGFloat   width = bounds.size.width;
+    CGFloat  height = bounds.size.height;
+    CGFloat      dx = floorf( width * 0.1f);
+    CGFloat      dy = floorf(height * 0.1f);
+    self.textLayer.frame = CGRectInset(bounds, dx, dy);
+    self.textLayer.fontSize = floorf(self.textLayer.frame.size.height * 0.8f);
+  }
+}
+
 /*****************************************************************************/
 
 -(void)prepareForCalendar
@@ -196,10 +212,10 @@ static NSString * const	kHeaderIdentifier   = @"CollectionHeaderIdentifer";
   if (showsMonth) {
     if (_textLayer == nil) {
       CATextLayer * textLayer = [CATextLayer new];
-      CGRect   bounds = self.collectionView.bounds;
+      CGRect   bounds = self.bounds;
       CGFloat   width = bounds.size.width;
       CGFloat  height = bounds.size.height;
-      CGFloat      dx = floorf(width * 0.1f);
+      CGFloat      dx = floorf( width * 0.1f);
       CGFloat      dy = floorf(height * 0.1f);
       textLayer.frame = CGRectInset(bounds, dx, dy);
       textLayer.fontSize = floorf(textLayer.frame.size.height * 0.8f);
